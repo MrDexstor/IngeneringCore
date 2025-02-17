@@ -1,4 +1,4 @@
-package com.example.examplemod;
+package com.mrdexstor.engineringcore;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
@@ -29,65 +29,65 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 
-// The value here should match an entry in the META-INF/mods.toml file
-@Mod(ExampleMod.MODID)
-public class ExampleMod
+// Значение здесь должно совпадать с записью в файле META-INF/mods.toml
+@Mod(EngineringCore.MODID)
+public class EngineringCore
 {
-    // Define mod id in a common place for everything to reference
-    public static final String MODID = "examplemod";
-    // Directly reference a slf4j logger
+    // Определяем ID мода в общем месте для всех ссылок
+    public static final String MODID = "engineringcore";
+    // Логгер для вывода сообщений
     private static final Logger LOGGER = LogUtils.getLogger();
-    // Create a Deferred Register to hold Blocks which will all be registered under the "examplemod" namespace
+    // Создаем Deferred Register для хранения блоков, которые будут зарегистрированы под пространством имен "MODID"
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
-    // Create a Deferred Register to hold Items which will all be registered under the "examplemod" namespace
+    // Создаем Deferred Register для хранения предметов, которые будут зарегистрированы под пространством имен "MODID"
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "examplemod" namespace
+    // Создаем Deferred Register для хранения вкладок креативного режима, которые будут зарегистрированы под пространством имен "MODID"
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    // Creates a new Block with the id "examplemod:example_block", combining the namespace and path
+    // Создаем новый блок с ID "examplemod:example_block"
     public static final RegistryObject<Block> EXAMPLE_BLOCK = BLOCKS.register("example_block", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
-    // Creates a new BlockItem with the id "examplemod:example_block", combining the namespace and path
+    // Создаем новый предмет блока с ID "examplemod:example_block"
     public static final RegistryObject<Item> EXAMPLE_BLOCK_ITEM = ITEMS.register("example_block", () -> new BlockItem(EXAMPLE_BLOCK.get(), new Item.Properties()));
 
-    // Creates a new food item with the id "examplemod:example_id", nutrition 1 and saturation 2
+    // Создаем новый съедобный предмет с ID "examplemod:example_item", питательность 1 и насыщение 2
     public static final RegistryObject<Item> EXAMPLE_ITEM = ITEMS.register("example_item", () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
             .alwaysEat().nutrition(1).saturationMod(2f).build())));
 
-    // Creates a creative tab with the id "examplemod:example_tab" for the example item, that is placed after the combat tab
+    // Создаем вкладку креативного режима с ID "examplemod:example_tab" для примера предмета, которая размещается после вкладки боя
     public static final RegistryObject<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> EXAMPLE_ITEM.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
+                output.accept(EXAMPLE_ITEM.get()); // Добавляем пример предмета во вкладку
             }).build());
 
-    public ExampleMod()
+    public EngineringCore()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        // Register the commonSetup method for modloading
+        // Регистрируем метод commonSetup для загрузки мода
         modEventBus.addListener(this::commonSetup);
 
-        // Register the Deferred Register to the mod event bus so blocks get registered
+        // Регистрируем Deferred Register в шине событий мода, чтобы блоки были зарегистрированы
         BLOCKS.register(modEventBus);
-        // Register the Deferred Register to the mod event bus so items get registered
+        // Регистрируем Deferred Register в шине событий мода, чтобы предметы были зарегистрированы
         ITEMS.register(modEventBus);
-        // Register the Deferred Register to the mod event bus so tabs get registered
+        // Регистрируем Deferred Register в шине событий мода, чтобы вкладки были зарегистрированы
         CREATIVE_MODE_TABS.register(modEventBus);
 
-        // Register ourselves for server and other game events we are interested in
+        // Регистрируем себя для серверных и других игровых событий, которые нас интересуют
         MinecraftForge.EVENT_BUS.register(this);
 
-        // Register the item to a creative tab
+        // Регистрируем предмет в креативной вкладке
         modEventBus.addListener(this::addCreative);
 
-        // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
+        // Регистрируем конфигурацию мода, чтобы Forge мог создать и загрузить файл конфигурации
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
     {
-        // Some common setup code
+        // Некоторый общий код настройки
         LOGGER.info("HELLO FROM COMMON SETUP");
 
         if (Config.logDirtBlock)
@@ -98,29 +98,29 @@ public class ExampleMod
         Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
     }
 
-    // Add the example block item to the building blocks tab
+    // Добавляем пример блока в вкладку строительных блоков
     private void addCreative(BuildCreativeModeTabContentsEvent event)
     {
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS)
             event.accept(EXAMPLE_BLOCK_ITEM);
     }
 
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
+    // Используем SubscribeEvent и позволяем шине событий обнаруживать методы для вызова
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event)
     {
-        // Do something when the server starts
+        // Делаем что-то при старте сервера
         LOGGER.info("HELLO from server starting");
     }
 
-    // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
+    // Используем EventBusSubscriber для автоматической регистрации всех статических методов в классе, аннотированных @SubscribeEvent
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents
     {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-            // Some client setup code
+            // Некоторый код настройки клиента
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
         }
